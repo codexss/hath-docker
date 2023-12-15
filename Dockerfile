@@ -1,25 +1,22 @@
 FROM anapsix/alpine-java:8
 
+ARG HatH_ID=13245
+ARG Hath_KEY=YourClientKeyHere
 ARG HatH_PORT=11112
-ARG HatH_ID=12345
-ARG Hath_KEY=HentaiAtHomeKeyHere
+
 ARG HatH_VERSION=1.6.2
 
-# Install dependencies and clean up
-RUN apk --no-cache add curl unzip && \
+RUN apk --no-cache add unzip && \
     adduser -D hath && \
-    mkdir -p /home/hath/client && \
+    mkdir -p /home/hath/client /home/hath/client/data && \
     cd /home/hath/client && \
-    curl -kfsSL "https://repo.e-hentai.org/hath/HentaiAtHome_$HatH_VERSION.zip" -o hath.zip && \
-    unzip hath.zip && \
-    rm hath.zip HentaiAtHomeGUI.jar autostartgui.bat && \
-    echo -n "$HatH_ID-$Hath_KEY" > "/home/hath/client/data/client_login" && \
+    wget "https://repo.e-hentai.org/hath/HentaiAtHome_$HatH_VERSION.zip" && \
+    unzip "HentaiAtHome_$HatH_VERSION.zip" && rm "HentaiAtHome_$HatH_VERSION.zip" &&\
     chmod -R 775 /home/hath/client && \
-    apk del curl unzip
+    apk del unzip
 
 WORKDIR /home/hath/client
 
-# Expose the port
 EXPOSE $HatH_PORT
 
-CMD ["java", "-jar", "HentaiAtHome.jar"]
+CMD echo -n "$HatH_ID-$Hath_KEY" > "data/client_login" && java -jar HentaiAtHome.jar --disable_logging
